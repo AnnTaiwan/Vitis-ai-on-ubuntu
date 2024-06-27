@@ -1,0 +1,73 @@
+====Save parameters in ../../../float/model_7.pth====
+Epoch [1/30], Train Loss: 0.5885, Train Accuracy: 69.77%, Valid Loss: 0.5821, Valid Accuracy: 71.60%
+Epoch [1/30] took 45.53076148033142 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [2/30], Train Loss: 0.4078, Train Accuracy: 82.33%, Valid Loss: 0.5396, Valid Accuracy: 72.20%
+Epoch [2/30] took 48.96739387512207 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [3/30], Train Loss: 0.3130, Train Accuracy: 86.03%, Valid Loss: 0.6364, Valid Accuracy: 73.40%
+Epoch [3/30] took 45.40491533279419 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [4/30], Train Loss: 0.2566, Train Accuracy: 89.60%, Valid Loss: 0.3773, Valid Accuracy: 83.53%
+Epoch [4/30] took 43.81346845626831 seconds.
+Epoch [5/30], Train Loss: 0.2080, Train Accuracy: 91.57%, Valid Loss: 0.4169, Valid Accuracy: 82.47%
+Epoch [5/30] took 44.62684488296509 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [6/30], Train Loss: 0.1817, Train Accuracy: 92.67%, Valid Loss: 0.2498, Valid Accuracy: 89.07%
+Epoch [6/30] took 45.24087858200073 seconds.
+Epoch [7/30], Train Loss: 0.1437, Train Accuracy: 94.27%, Valid Loss: 0.3574, Valid Accuracy: 87.33%
+Epoch [7/30] took 44.04716515541077 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [8/30], Train Loss: 0.1112, Train Accuracy: 95.80%, Valid Loss: 0.1707, Valid Accuracy: 93.33%
+Epoch [8/30] took 53.88925123214722 seconds.
+Epoch [9/30], Train Loss: 0.0877, Train Accuracy: 96.73%, Valid Loss: 0.2617, Valid Accuracy: 90.67%
+Epoch [9/30] took 58.28791117668152 seconds.
+Epoch [10/30], Train Loss: 0.0803, Train Accuracy: 96.70%, Valid Loss: 0.2331, Valid Accuracy: 91.20%
+Epoch [10/30] took 55.59058475494385 seconds.
+Epoch [11/30], Train Loss: 0.0684, Train Accuracy: 97.57%, Valid Loss: 0.3815, Valid Accuracy: 84.87%
+Epoch [11/30] took 54.366514682769775 seconds.
+Epoch [12/30], Train Loss: 0.0605, Train Accuracy: 97.63%, Valid Loss: 0.3035, Valid Accuracy: 90.00%
+Epoch [12/30] took 40.80688524246216 seconds.
+Epoch [13/30], Train Loss: 0.0482, Train Accuracy: 98.13%, Valid Loss: 0.1904, Valid Accuracy: 92.00%
+Epoch [13/30] took 41.01057839393616 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [14/30], Train Loss: 0.0358, Train Accuracy: 98.97%, Valid Loss: 0.2094, Valid Accuracy: 93.40%
+Epoch [14/30] took 41.71451759338379 seconds.
+Epoch [15/30], Train Loss: 0.0318, Train Accuracy: 98.93%, Valid Loss: 0.2458, Valid Accuracy: 92.00%
+Epoch [15/30] took 41.10510563850403 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [16/30], Train Loss: 0.0263, Train Accuracy: 99.23%, Valid Loss: 0.1990, Valid Accuracy: 93.87%
+Epoch [16/30] took 41.048125982284546 seconds.
+Epoch [17/30], Train Loss: 0.0173, Train Accuracy: 99.53%, Valid Loss: 0.7074, Valid Accuracy: 84.33%
+Epoch [17/30] took 41.08987021446228 seconds.
+Epoch [18/30], Train Loss: 0.0164, Train Accuracy: 99.57%, Valid Loss: 0.4062, Valid Accuracy: 89.87%
+Epoch [18/30] took 41.551957845687866 seconds.
+Epoch [19/30], Train Loss: 0.0504, Train Accuracy: 98.17%, Valid Loss: 0.7382, Valid Accuracy: 81.07%
+Epoch [19/30] took 41.31905221939087 seconds.
+Epoch [20/30], Train Loss: 0.0525, Train Accuracy: 97.93%, Valid Loss: 0.6410, Valid Accuracy: 84.40%
+Epoch [20/30] took 41.293395042419434 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [21/30], Train Loss: 0.0535, Train Accuracy: 98.23%, Valid Loss: 0.1870, Valid Accuracy: 94.13%
+Epoch [21/30] took 40.64098906517029 seconds.
+Epoch [22/30], Train Loss: 0.0524, Train Accuracy: 97.90%, Valid Loss: 0.4566, Valid Accuracy: 88.67%
+Epoch [22/30] took 46.45951461791992 seconds.
+Epoch [23/30], Train Loss: 0.0580, Train Accuracy: 97.90%, Valid Loss: 0.2409, Valid Accuracy: 92.73%
+Epoch [23/30] took 44.04377317428589 seconds.
+Epoch [24/30], Train Loss: 0.0398, Train Accuracy: 98.50%, Valid Loss: 0.3374, Valid Accuracy: 91.20%
+Epoch [24/30] took 44.64607334136963 seconds.
+Epoch [25/30], Train Loss: 0.0308, Train Accuracy: 98.97%, Valid Loss: 0.1771, Valid Accuracy: 93.53%
+Epoch [25/30] took 45.06270694732666 seconds.
+Epoch [26/30], Train Loss: 0.0167, Train Accuracy: 99.57%, Valid Loss: 0.2425, Valid Accuracy: 93.20%
+Epoch [26/30] took 46.851932764053345 seconds.
+Epoch [27/30], Train Loss: 0.0110, Train Accuracy: 99.80%, Valid Loss: 0.1851, Valid Accuracy: 94.00%
+Epoch [27/30] took 49.99397373199463 seconds.
+Epoch [28/30], Train Loss: 0.0118, Train Accuracy: 99.60%, Valid Loss: 0.1862, Valid Accuracy: 93.73%
+Epoch [28/30] took 46.64586877822876 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [29/30], Train Loss: 0.0054, Train Accuracy: 99.97%, Valid Loss: 0.1422, Valid Accuracy: 96.07%
+Epoch [29/30] took 45.44486093521118 seconds.
+====Save parameters in ../../../float/model_7.pth====
+Epoch [30/30], Train Loss: 0.0024, Train Accuracy: 100.00%, Valid Loss: 0.1187, Valid Accuracy: 96.73%
+Epoch [30/30] took 50.403465032577515 seconds.
+
+Max accuracy: 96.73333333333333
