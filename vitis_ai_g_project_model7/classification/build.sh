@@ -21,7 +21,11 @@ else
 	OPENCV_FLAGS=$(pkg-config --cflags --libs-only-L opencv)
 fi
 
+GSTREAMER_FLAGS=`pkg-config --cflags --libs gstreamer-1.0 gstreamer-app-1.0`
+
 CXX=${CXX:-g++}
 $CXX -std=c++17 -O2 -I. -o demo_CNN_model7_normalize demo_CNN_model7_normalize.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
 
 $CXX -std=c++17 -O2 -I. -o demo_CNN_model7_test demo_CNN_model7_test.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
+
+$CXX -std=c++17 -O2 -I. -o demo_CNN_model7_gst demo_CNN_model7_gst.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} $GSTREAMER_FLAGS -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
