@@ -159,7 +159,7 @@ void write_mel_spectrogram_to_txt(const std::vector<float>& mel_spec, const std:
     if (file.is_open()) {
         for (size_t i = 0; i < mel_spec.size(); ++i) {
             file << mel_spec[i] << " ";
-            if ((i + 1) % SPEC_WIDTH == 0) {
+            if ((i + 1) % N_MELS == 0) {
                 file << std::endl;
             }
         }
