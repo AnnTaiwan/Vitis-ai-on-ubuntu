@@ -167,6 +167,7 @@ void write_mel_spectrogram_to_txt(const std::vector<float>& mel_spec, const std:
     } else {
         std::cerr << "Unable to open file " << filename << " for writing." << std::endl;
     }
+    
 }
 
 // Callback for new audio sample
@@ -194,6 +195,10 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
         if (first_time) {
             write_mel_spectrogram_to_txt(mel_spec, "mel_spectrogram.txt");
             first_time = false;
+            
+            // Send EOS to the pipeline
+            GstElement *pipeline = GST_ELEMENT(user_data);
+            gst_element_send_event(pipeline, gst_event_new_eos());
         }
 
         // Example: Output the first few values of mel_spec
@@ -207,6 +212,7 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
         gst_buffer_unmap(buffer, &map);
         gst_sample_unref(sample);
 
+	
         return GST_FLOW_OK; // Return to stop further processing
     }
 
@@ -244,17 +250,46 @@ int main(int argc, char *argv[]) {
 
     // Set up appsink's new-sample signal handler
     GstAppSinkCallbacks callbacks = { NULL, NULL, new_sample };
-    gst_app_sink_set_callbacks(GST_APP_SINK(appsink), &callbacks, NULL, NULL);
+    gst_app_sink_set_callbacks(GST_APP_SINK(appsink), &callbacks, pipeline, NULL);
 
     // Run main loop
     GstBus *bus = gst_element_get_bus(pipeline);
-    gst_bus_timed_pop_filtered(bus, GST_CLOCK_TIME_NONE, GstMessageType(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
-    gst_object_unref(bus);
+    GstMessage *msg;
+    bool terminate = false;
+
+    while (!terminate) {
+        msg = gst_bus_timed_pop_filtered(bus, GST_CLOCK_TIME_NONE, GstMessageType(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+        if (msg != nullptr) {
+            switch (GST_MESSAGE_TYPE(msg)) {
+                case GST_MESSAGE_ERROR: {
+                    GError *err;
+                    gchar *debug_info;
+                    gst_message_parse_error(msg, &err, &debug_info);
+                    std::cerr << "Error received from element " << GST_OBJECT_NAME(msg->src) << ": " << err->message << std::endl;
+                    std::cerr << "Debugging information: " << (debug_info ? debug_info : "none") << std::endl;
+                    g_clear_error(&err);
+                    g_free(debug_info);
+                    terminate = true;
+                    break;
+                }
+                case GST_MESSAGE_EOS:
+                    std::cout << "End-Of-Stream reached." << std::endl;
+                    terminate = true;
+                    break;
+                default:
+                    // We should not reach here because we only asked for ERRORs and EOS
+                    std::cerr << "Unexpected message received." << std::endl;
+                    break;
+            }
+            gst_message_unref(msg);
+        }
+    }
 
     // Clean up
     gst_element_set_state(pipeline, GST_STATE_NULL);
     gst_object_unref(appsink);
     gst_object_unref(pipeline);
+    gst_object_unref(bus);
     gst_deinit();
 
     return 0;
