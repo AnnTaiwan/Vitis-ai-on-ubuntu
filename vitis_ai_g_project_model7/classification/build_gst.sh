@@ -22,7 +22,5 @@ else
 fi
 GSTREAMER_FLAGS=$(pkg-config --cflags --libs gstreamer-1.0 gstreamer-app-1.0 gstreamer-fft-1.0)
 
+CXX=${CXX:-g++}
 $CXX -std=c++17 -O2 -I. -o demo_spectrum_gst demo_spectrum_gst.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} ${GSTREAMER_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
-
-$CXX -std=c++17 -O2 -I. -o demo_mel_spec_gst demo_mel_spec_gst.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} ${GSTREAMER_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
-
