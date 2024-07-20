@@ -9,13 +9,13 @@
 #include <gst/audio/audio.h>
 #include <gst/fft/gstfftf32.h>
 
-#define SAMPLE_RATE 16000
+#define SAMPLE_RATE 22050
 #define DURATION 5.0
 #define AUDIO_LEN (SAMPLE_RATE * DURATION)
 #define N_MELS 128
 #define N_FFT 2048
-#define SPEC_WIDTH 256
-#define HOP_LEN (AUDIO_LEN / (SPEC_WIDTH - 1))
+#define HOP_LEN 512
+#define SPEC_WIDTH 216 // (AUDIO_LEN / HOP_LEN + 1)
 #define FMAX (SAMPLE_RATE / 2)
 #define SPEC_SHAPE {SPEC_WIDTH, N_MELS}
 
@@ -101,13 +101,18 @@ std::vector<float> get_mel_spectrogram(const std::vector<float>& audio, int sr) 
 
     // Prepare Mel spectrogram container
     std::vector<float> mel_spec(num_fft_bins * SPEC_WIDTH, 0.0f);
+    //std::cout << "mel_spec.max_size(): " <<  mel_spec.max_size() << std::endl; // 2305843009213693951
+    //std::cout << "AAA" << std::endl;
+    // get the mel_filter_bank to turn the scale into mel_scale
+    // mel_filter bank's shape = (n_mels, N_FFT / 2 + 1)
     std::vector<std::vector<float>> mel_filter_bank = generate_mel_filter_bank(sr, fft_size, num_fft_bins, FMAX);
-
-    for (size_t i = 0; i < SPEC_WIDTH; ++i) {
+	//std::cout << "BBB" << audio.size() << std::endl;
+	// apply stft on audio
+    for (size_t i = 0; i < SPEC_WIDTH; ++i) { // has SPEC_WIDTH frames totally
         size_t start = i * HOP_LEN;
         size_t end = std::min(start + fft_size, audio.size());
         std::vector<float> segment(audio.begin() + start, audio.begin() + end);
-
+		//std::cout << "CCC" << segment.size() << std::endl;
         // Apply Hamming window
         segment = apply_hamming_window(segment);
 
@@ -116,20 +121,22 @@ std::vector<float> get_mel_spectrogram(const std::vector<float>& audio, int sr) 
 
         // Prepare fft_input (complex to complex)
         for (guint j = 0; j < fft_size; ++j) {
-            fft_input[j].r = (j < segment.size()) ? segment[j] : 0.0f;
+            fft_input[j].r = (j < segment.size()) ? segment[j] : 0.0f; // padding 0 if frame isn't big enough
             fft_input[j].i = 0.0f; // Assuming no imaginary part for simplicity
         }
 
         // Perform FFT
         gst_fft_f32_fft(fft, (const gfloat *)fft_input, fft_result);
-
-        // Compute power spectrum
-        std::vector<float> power_spectrum(fft_size / 2 + 1, 0.0f);
+		//std::cout << "DDD" << std::endl;
+        // Compute power spectrum, like np.abs(spec)**2, turn complex into float
+        std::vector<float> power_spectrum(fft_size / 2 + 1, 0.0f); // just need first half value
+        //std::cout << "EEE" << std::endl;
         for (guint j = 0; j < fft_size / 2 + 1; ++j) {
             power_spectrum[j] = pow(fft_result[j].r, 2) + pow(fft_result[j].i, 2);
         }
-
-        // Apply Mel filter bank
+		//std::cout << "HHH" << std::endl;
+        // Apply Mel filter bank on each frame
+        // like the rows in mel_filter_bank(128, 1025) dot(*) the column of power_spectrum(1025, 216) = final_spec(128, 216)
         for (guint m = 0; m < num_fft_bins; ++m) {
             float mel_value = 0.0f;
             for (guint k = 0; k < fft_size / 2 + 1; ++k) {
@@ -142,12 +149,12 @@ std::vector<float> get_mel_spectrogram(const std::vector<float>& audio, int sr) 
         g_free(fft_result);
         g_free(fft_input);
     }
-
+	///std::cout << "FFF" << std::endl;
     gst_fft_f32_free(fft);
 
     // Convert power spectrogram to dB scale
     mel_spec = power_to_db(mel_spec);
-
+	///std::cout << "GGG" << std::endl;
     return mel_spec;
 }
 
@@ -188,8 +195,18 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
     // If enough samples collected, process Mel spectrogram
     if (audio_buffer.size() >= AUDIO_LEN) {
         std::vector<float> audio_segment(audio_buffer.begin(), audio_buffer.begin() + AUDIO_LEN);
+        // check the loaded audio data
+        /*
+        std::cout << "Audio: " << audio_segment.size() << std::endl;
+        for (int i = 0; i < 20 && i < audio_segment.size(); ++i) {
+            std::cout << audio_segment[i+10000] << " ";
+        }
+        std::cout << std::endl;
+		*/
+		std::cout << "START GET MEL" << SPEC_WIDTH << std::endl;
         std::vector<float> mel_spec = get_mel_spectrogram(audio_segment, SAMPLE_RATE);
-
+		std::cout << "OVER GET MEL" << std::endl;
+		
         // Write Mel spectrogram to .txt file (only for the first time)
         static bool first_time = true;
         if (first_time) {
