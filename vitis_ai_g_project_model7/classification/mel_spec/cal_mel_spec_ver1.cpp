@@ -9,6 +9,11 @@
 #include <gst/audio/audio.h>
 #include <gst/fft/gstfftf32.h>
 
+#include <algorithm>
+#include <stdexcept>
+#include <numeric>
+#include <limits>
+
 #define SAMPLE_RATE 22050
 #define DURATION 5.0
 #define AUDIO_LEN (SAMPLE_RATE * DURATION)
@@ -32,40 +37,130 @@ std::vector<float> apply_hamming_window(const std::vector<float>& signal) {
     return windowed_signal;
 }
 
-// Function to generate a Mel filter bank
-std::vector<std::vector<float>> generate_mel_filter_bank(int sample_rate, int n_fft, int n_mels, int fmax) {
+// used for creating mel_bank
+// Function to compute FFT frequencies
+std::vector<float> fft_frequencies(float sr, int n_fft) {
+    std::vector<float> freqs(n_fft / 2 + 1);
+    // Calculate the frequency for each FFT bin
+    for (int i = 0; i <= n_fft / 2; ++i) {
+        freqs[i] = i * sr / n_fft;
+    }
+    return freqs;
+}
+
+// Helper function to convert frequency to Mel scale
+float hz_to_mel(float freq, bool htk = false) {
+    if (htk) {
+        // HTK Mel scale: 2595 * log10(1 + freq / 700)
+        return 2595.0f * std::log10(1.0f + freq / 700.0f);
+    } else {
+        // Slaney Mel scale
+        const float f_min = 0.0f;
+        const float f_sp = 200.0f / 3;
+        float mels = (freq - f_min) / f_sp;
+        const float min_log_hz = 1000.0f;
+        const float min_log_mel = (min_log_hz - f_min) / f_sp;
+        const float logstep = std::log(6.4f) / 27.0f;
+
+        if (freq >= min_log_hz) {
+            mels = min_log_mel + std::log(freq / min_log_hz) / logstep;
+        }
+
+        return mels;
+    }
+}
+
+// Helper function to convert Mel scale to frequency
+float mel_to_hz(float mel, bool htk = false) {
+    if (htk) {
+        // HTK Mel scale: 700 * (10^(mel / 2595) - 1)
+        return 700.0f * (std::pow(10.0f, mel / 2595.0f) - 1.0f);
+    } else {
+        // Slaney Mel scale
+        const float f_min = 0.0f;
+        const float f_sp = 200.0f / 3;
+        float freqs = f_min + f_sp * mel;
+        const float min_log_hz = 1000.0f;
+        const float min_log_mel = (min_log_hz - f_min) / f_sp;
+        const float logstep = std::log(6.4f) / 27.0f;
+
+        if (mel >= min_log_mel) {
+            freqs = min_log_hz * std::exp(logstep * (mel - min_log_mel));
+        }
+
+        return freqs;
+    }
+}
+
+// Helper function to generate Mel frequencies
+std::vector<float> mel_frequencies(int n_mels, float fmin, float fmax, bool htk) {
+    std::vector<float> mels(n_mels);
+    // Calculate the minimum and maximum Mel frequencies
+    float min_mel = hz_to_mel(fmin, htk);
+    float max_mel = hz_to_mel(fmax, htk);
+    // Calculate the step size between Mel frequencies
+    float mel_step = (max_mel - min_mel) / (n_mels - 1);
+
+    // Generate Mel frequency points and convert back to Hz frequencies
+    for (int i = 0; i < n_mels; ++i) {
+        mels[i] = mel_to_hz(min_mel + i * mel_step, htk);
+    }
+
+    return mels;
+}
+
+// Function to normalize filter weights
+void normalize(std::vector<std::vector<float>>& weights, const std::string& norm) {
+    if (norm == "slaney") {
+        for (size_t i = 0; i < weights.size(); ++i) {
+            float sum = 0.0f;
+            // Calculate the sum of weights for each filter
+            for (size_t j = 0; j < weights[i].size(); ++j) {
+                sum += weights[i][j];
+            }
+            // Normalize the weights if the sum is not zero
+            if (sum != 0.0f) {
+                for (size_t j = 0; j < weights[i].size(); ++j) {
+                    weights[i][j] /= sum;
+                }
+            }
+        }
+    } else {
+        throw std::invalid_argument("Unsupported norm=" + norm);
+    }
+}
+
+// Function to create Mel filter-bank
+std::vector<std::vector<float>> generate_mel_filter_bank(float sample_rate, int n_fft, int n_mels, int fmax) {
     std::vector<std::vector<float>> mel_filter_bank(n_mels, std::vector<float>(n_fft / 2 + 1, 0.0f));
-    
-    // Step 1: Define Mel scale transformation functions
-    auto hz_to_mel = [](float hz) { return 2595.0 * log10(1.0 + hz / 700.0); };
-    auto mel_to_hz = [](float mel) { return 700.0 * (pow(10.0, mel / 2595.0) - 1.0); };
-    
-    // Step 2: Calculate Mel frequency points
+
+    // Calculate Mel frequency points
     float mel_min = hz_to_mel(0);
     float mel_max = hz_to_mel(fmax);
     std::vector<float> mel_points(n_mels + 2);
     for (int i = 0; i < n_mels + 2; ++i) {
         mel_points[i] = mel_min + (mel_max - mel_min) * i / (n_mels + 1);
     }
-    
-    // Step 3: Convert Mel points back to Hz
+
+    // Convert Mel points back to Hz
     std::vector<float> hz_points(n_mels + 2);
     for (int i = 0; i < n_mels + 2; ++i) {
         hz_points[i] = mel_to_hz(mel_points[i]);
     }
-    
-    // Step 4: Map Hz points to FFT bin numbers
+
+    // Map Hz points to FFT bin numbers
     std::vector<int> bin_points(n_mels + 2);
     for (int i = 0; i < n_mels + 2; ++i) {
         bin_points[i] = static_cast<int>(floor((n_fft + 1) * hz_points[i] / sample_rate));
     }
-    
-    // Step 5: Create Mel filter bank
+
+    // Create Mel filter bank
     for (int i = 1; i <= n_mels; ++i) {
         int start = bin_points[i - 1];
         int center = bin_points[i];
         int end = bin_points[i + 1];
-        
+
+        // Compute the weights for each filter
         for (int j = start; j < center; ++j) {
             mel_filter_bank[i - 1][j] = (j - start) / static_cast<float>(center - start);
         }
@@ -73,20 +168,36 @@ std::vector<std::vector<float>> generate_mel_filter_bank(int sample_rate, int n_
             mel_filter_bank[i - 1][j] = (end - j) / static_cast<float>(end - center);
         }
     }
-    
+
+    // Normalize the filter bank
+    normalize(mel_filter_bank, "slaney");
+
     return mel_filter_bank;
 }
+
+
+///////////////////////////////
 // Function to convert power spectrogram to dB scale
-std::vector<float> power_to_db(const std::vector<float>& power_spec, float ref_value=1.0, float amin=1e-10, float top_db=80.0) {
+// use global value as max to cal with top_db, this way can create a more correct picture
+std::vector<float> power_to_db(const std::vector<float>& power_spec, float ref_value = 1.0, float amin = 1e-10, float top_db = 80.0) {
     std::vector<float> db_spec(power_spec.size());
     float log_spec_ref = 10.0 * log10(ref_value);
 
+    // First pass: Convert power to dB scale and find the max value
+    float max_val = -std::numeric_limits<float>::infinity();
     for (size_t i = 0; i < power_spec.size(); ++i) {
         float val = std::max(power_spec[i], amin);
-        db_spec[i] = 10.0 * log10(val) - log_spec_ref;
-        if (top_db > 0.0) {
-            db_spec[i] = std::max(db_spec[i], -top_db);
+        float magnitude_db = 10.0 * log10(val) - log_spec_ref;
+        db_spec[i] = magnitude_db;
+        if (magnitude_db > max_val) {
+            max_val = magnitude_db;
         }
+    }
+
+    // Apply top_db threshold based on the global max value
+    float threshold = max_val - top_db;
+    for (size_t i = 0; i < db_spec.size(); ++i) {
+        db_spec[i] = std::max(db_spec[i], threshold);
     }
 
     return db_spec;
@@ -142,7 +253,7 @@ std::vector<float> get_mel_spectrogram(const std::vector<float>& audio, int sr) 
             for (guint k = 0; k < fft_size / 2 + 1; ++k) {
                 mel_value += mel_filter_bank[m][k] * power_spectrum[k];
             }
-            mel_spec[i * num_fft_bins + m] = mel_value + 1e-6; // Logarithmic scaling
+            mel_spec[i * num_fft_bins + m] = mel_value; // Logarithmic scaling
         }
 
         // Clean up FFT resources
