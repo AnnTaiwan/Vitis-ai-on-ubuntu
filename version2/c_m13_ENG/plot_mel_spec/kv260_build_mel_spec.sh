@@ -7,3 +7,5 @@ $CXX -std=c++17 -O2 -o cal_mel_spec_ver2 cal_mel_spec_ver2.cpp ${GSTREAMER_FLAGS
 
 $CXX -std=c++17 -O2 -o plot_mel_spec_from_txt plot_mel_spec_from_txt.cpp ${CAIRO_FLAGS}
 
+$CXX -std=c++17 -O2 -o plot_mel_spec_from_txt_scale plot_mel_spec_from_txt_scale.cpp ${CAIRO_FLAGS}
+
