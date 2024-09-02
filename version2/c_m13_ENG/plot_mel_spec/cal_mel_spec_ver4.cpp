@@ -30,7 +30,7 @@ static GstElement *appsink;
 static std::deque<double> audio_buffer; // Buffer to store incoming audio samples
 // Global segment counter, starting from 1
 static int segment_count = 1;
-
+static std::string dest_txt_folder_name = "";
 // Function to generate Hanning window
 std::vector<float> hanning_window(int window_Size) {
     std::vector<float> window(window_Size);
@@ -383,7 +383,7 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
         std::vector<std::vector<float>> mel_spec = get_mel_spectrogram(audio_segment, SAMPLE_RATE);
 
         // Save Mel spectrogram to file with global segment count
-        std::string filename = "mel_spectrogram_segment_" + std::to_string(segment_count++) + ".txt";
+        std::string filename = dest_txt_folder_name + "/mel_spectrogram_segment_" + std::to_string(segment_count++) + ".txt";
         write_mel_spectrogram_to_txt(mel_spec, filename);
 
         // Remove the processed samples from the buffer
@@ -401,11 +401,11 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
 
 
 int main(int argc, char *argv[]) {
-    if(argc < 2) {
-        std::cout << "Error: Please add the audio files after the execution command, like ./cal_mel_spec_ver2 <files.wav>" << std::endl;
+    if(argc < 3) {
+        std::cout << "Error: Please add the audio files after the execution command, like ./cal_mel_spec_ver2 <files.wav> <txt_folder_name>" << std::endl;
         return 0;
     }
-    
+    dest_txt_folder_name = std::string(argv[2]);
     // Initialize GStreamer
     gst_init(&argc, &argv);
 
@@ -482,7 +482,7 @@ int main(int argc, char *argv[]) {
 		                std::vector<std::vector<float>> mel_spec = get_mel_spectrogram(audio_segment, SAMPLE_RATE);
 
 		                // Save the final Mel spectrogram
-		                std::string filename = "mel_spectrogram_segment_" + std::to_string(segment_count++) + ".txt";
+		                std::string filename = dest_txt_folder_name + "/mel_spectrogram_segment_" + std::to_string(segment_count++) + ".txt";
 		                write_mel_spectrogram_to_txt(mel_spec, filename);
 
 		                // Clear the buffer
