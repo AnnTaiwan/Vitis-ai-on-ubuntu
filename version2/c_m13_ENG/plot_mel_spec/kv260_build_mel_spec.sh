@@ -13,3 +13,4 @@ $CXX -std=c++17 -O2 -o plot_mel_spec_from_txt_ver2 plot_mel_spec_from_txt_ver2.c
 
 $CXX -std=c++17 -O2 -o plot_mel_spec_from_txt_scale plot_mel_spec_from_txt_scale.cpp ${CAIRO_FLAGS}
 
+$CXX -std=c++17 -O2 -o plot_mel_spec_from_txt_scale_ver2 plot_mel_spec_from_txt_scale_ver2.cpp ${CAIRO_FLAGS}

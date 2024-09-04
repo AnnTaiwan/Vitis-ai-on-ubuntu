@@ -458,7 +458,7 @@ int main(int argc, char *argv[]) {
                     std::cout << "End-Of-Stream reached." << std::endl;
                 
 		            // Handle EOS: pad final segment if necessary
-		            if (audio_buffer.size() > 0 && audio_buffer.size() < AUDIO_LEN) {
+		            if ((segment_count == 1 && audio_buffer.size() > 0 && audio_buffer.size() < AUDIO_LEN) || (audio_buffer.size() >= 66150 && audio_buffer.size() < AUDIO_LEN)) {
 		                //std::cout << "Padding audio_buffer.size() " << audio_buffer.size() << std::endl;
 
 		                // Convert deque to vector
