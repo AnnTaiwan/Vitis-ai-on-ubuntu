@@ -21,7 +21,8 @@ else
 	OPENCV_FLAGS=$(pkg-config --cflags --libs-only-L opencv)
 fi
 
-GSTREAMER_FLAGS=`pkg-config --cflags --libs gstreamer-1.0 gstreamer-app-1.0`
 
 CXX=${CXX:-g++}
-$CXX -std=c++17 -O2 -I. -o demo_final_segment_audio demo_final_segment_audio.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
+$CXX -std=c++17 -O2 -I. -o demo_final_segment_audio_ver1 demo_final_segment_audio_ver1.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
+
+$CXX -std=c++17 -O2 -I. -o demo_final_segment_audio_ver2 demo_final_segment_audio_ver2.cpp -lglog -lvitis_ai_library-xnnpp -lvitis_ai_library-model_config -lprotobuf -lvitis_ai_library-dpu_task ${OPENCV_FLAGS} -lopencv_core  -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
