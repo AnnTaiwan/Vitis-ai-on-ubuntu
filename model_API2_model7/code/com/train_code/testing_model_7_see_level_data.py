@@ -94,7 +94,7 @@ def test_model(model, test_dataloader, criterion):
 if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Test on {device}.")
-    dev_df = pd.read_csv("ASV_spoof2019/eval_info.csv")
+    dev_df = pd.read_csv("ASV_spoof2019/train_info.csv")
     model = CNN_model7()
     model.to(device)
     state_dict = torch.load('../../../float/model_7.pth')
@@ -106,7 +106,8 @@ if __name__ == "__main__":
     # register_hooks(model) 
 
     # image_folder_path = r"C:\Users\User\Desktop\code\dataset_testing"
-    image_folder_path = "../../../data/My_dataset/spec_LAEval_audio_shuffle1_NOT_preprocessing"
+    #image_folder_path = "../../../data/My_dataset/spec_LAEval_audio_shuffle1_NOT_preprocessing"
+    image_folder_path = "../../../data/My_dataset/valid_spec_LATrain_audio_shuffle4_NOT_preprocessing"
 
 	# record the Image_name
     dict1["Image_name"] = [filename for filename in os.listdir(image_folder_path)]

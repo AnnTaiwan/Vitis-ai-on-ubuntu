@@ -309,8 +309,8 @@ static GstFlowReturn new_sample(GstAppSink *appsink, gpointer user_data) {
         // check the loaded audio data
         /*
         std::cout << "Audio: " << audio_segment.size() << std::endl;
-        for (int i = 0; i < 20 && i < audio_segment.size(); ++i) {
-            std::cout << audio_segment[i+10000] << " ";
+        for (int i = 0;  i < audio_segment.size(); ++i) {
+            std::cout << audio_segment[i] << " ";
         }
         std::cout << std::endl;
 		*/
